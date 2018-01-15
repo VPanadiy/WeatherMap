@@ -7,6 +7,10 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 
 import java.io.IOException;
+import java.util.Locale;
+import java.util.ResourceBundle;
+
+import static com.sun.org.apache.xalan.internal.xsltc.dom.CollatorFactoryBase.DEFAULT_LOCALE;
 
 /**
  * Boot class for application
@@ -21,13 +25,20 @@ public class Main extends Application {
      */
     @Override
     public void start(Stage primaryStage) throws IOException {
-        Parent panel = FXMLLoader.load(getClass().getResource("/fxml/main.fxml"));
 
-        Scene scene = new Scene(panel, 375, 300);
+        Locale.setDefault(DEFAULT_LOCALE);
 
-        primaryStage.setTitle("Weather Forecast");
-        primaryStage.setMinHeight(350);
+        FXMLLoader fxmlLoader = new FXMLLoader();
+        fxmlLoader.setLocation(getClass().getResource("/fxml/main.fxml"));
+        fxmlLoader.setResources(ResourceBundle.getBundle("bundles.Locale"));
+
+        Parent fxmlMain = fxmlLoader.load();
+
+        Scene scene = new Scene(fxmlMain);
+
+        primaryStage.setTitle(fxmlLoader.getResources().getString("main.title"));
         primaryStage.setMinWidth(400);
+        primaryStage.setMinHeight(350);
         primaryStage.setScene(scene);
         primaryStage.show();
     }

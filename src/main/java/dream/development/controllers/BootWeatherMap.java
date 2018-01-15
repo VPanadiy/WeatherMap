@@ -7,6 +7,7 @@ import dream.development.models.enums.PrintFormat;
 import dream.development.parser.ParseXML;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextArea;
@@ -20,24 +21,26 @@ import javax.swing.filechooser.FileSystemView;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 import java.io.*;
+import java.net.URL;
 import java.nio.file.FileStore;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.ResourceBundle;
 
 import static dream.development.models.consts.Constants.*;
 
 /**
  * Main controller for application
  */
-public class BootWeatherMap {
+public class BootWeatherMap implements Initializable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(BootWeatherMap.class);
 
     private UserWeatherMapImpl userWeatherMapImpl = new UserWeatherMapImpl();
-//    private WeatherState weatherState = new WeatherState();
+    private ResourceBundle resourceBundle;
 
     @FXML
     private Button btnURL;
@@ -54,8 +57,9 @@ public class BootWeatherMap {
     /**
      * Initialize parameters after stage creating
      */
-    @FXML
-    public void initialize() {
+    @Override
+    public void initialize(URL location, ResourceBundle resources) {
+        this.resourceBundle = resources;
         txtURL.setText(DEFAULT_WEATHER_MAP_URL);
         userWeatherMapImpl.setURL(txtURL.getText());
     }
@@ -270,7 +274,12 @@ public class BootWeatherMap {
      */
     public void serialize(WeatherState weatherState, FileChooser fileChooser, File file) throws IOException {
 
-        FileOutputStream fos = new FileOutputStream(file.getParent() + fileChooser.getInitialFileName() + ".temp");
+        FileOutputStream fos;
+        if ('\\' == file.getParent().charAt(file.getParent().length() - 1)) {
+            fos = new FileOutputStream(file.getParent() + fileChooser.getInitialFileName() + ".temp");
+        } else {
+            fos = new FileOutputStream(file.getParent() + '\\' + fileChooser.getInitialFileName() + ".temp");
+        }
         ObjectOutputStream oos = new ObjectOutputStream(fos);
         oos.writeObject(weatherState);
         oos.flush();
@@ -288,26 +297,25 @@ public class BootWeatherMap {
 
         FileSystemView fsv = FileSystemView.getFileSystemView();
         File[] listRoots = File.listRoots();
+        Path path = null;
+        FileStore fileStore = null;
 
         for (File fileSystem : listRoots) {
 
-            if (fsv.getSystemTypeDescription(fileSystem) != null) {
+            if (fsv.getSystemTypeDescription(fileSystem) != null && fsv.getSystemTypeDescription(fileSystem).equals(resourceBundle.getString("bootWeatherMap.removableDisk"))) {
 
-                if (fsv.getSystemTypeDescription(fileSystem).equals("Съемный диск") || fsv.getSystemTypeDescription(fileSystem).equals("Removable Disk") || fsv.getSystemTypeDescription(fileSystem).equals("Знімний диск")) {
-                    Path path = Paths.get(String.valueOf(fileSystem));
-                    FileStore fileStore = Files.getFileStore(path);
+                path = Paths.get(String.valueOf(fileSystem));
+                fileStore = Files.getFileStore(path);
 
-                    if (fileStore.type().equals(FILE_SYSTEM_FAT32)) {
+                if (fileStore.type().equals(FILE_SYSTEM_FAT32)) {
 
-                        if (fileSystem.canWrite() && fileSystem.getUsableSpace() >= USED_SPACE) {
-                            LOGGER.info("Location set to disk " + fileSystem);
-                            txtAreaStatus.appendText("Location set to disk " + fileSystem + "\n");
-                            return fileSystem;
-                        } else {
-                            LOGGER.info("[Warning]: File location is locked or not enough space!");
-                            txtAreaStatus.appendText("[Warning]: File location is locked or not enough space!\n");
-                        }
-
+                    if (fileSystem.canWrite() && fileSystem.getUsableSpace() >= USED_SPACE) {
+                        LOGGER.info("Location set to disk " + fileSystem);
+                        txtAreaStatus.appendText("Location set to disk " + fileSystem + "\n");
+                        return fileSystem;
+                    } else {
+                        LOGGER.info("[Warning]: File location is locked or not enough space!");
+                        txtAreaStatus.appendText("[Warning]: File location is locked or not enough space!\n");
                     }
 
                 }

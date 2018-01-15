@@ -45,14 +45,14 @@ public class TestBootWeatherMapValidSerialize {
 
     @Test
     public void deserialize() throws SAXException, IOException, ClassNotFoundException {
-        File createdFolder = folder.newFolder();
-        fileChooser.setInitialFileName("temp");
+        File createdFolder = folder.getRoot();
+        fileChooser.setInitialFileName("serializable");
 
         saxParser.parse(userWeatherMapImpl.getUserWeatherMap().getWeatherMapURL(), parseXML);
 
         bootWeatherMap.serialize(parseXML.getWeatherState(), fileChooser, createdFolder);
 
-        FileInputStream fis = new FileInputStream(createdFolder.getParent() + "temp.temp");
+        FileInputStream fis = new FileInputStream(createdFolder.getParent()+ '\\' + "serializable.temp");
         ObjectInputStream oin = new ObjectInputStream(fis);
         WeatherState weatherState = (WeatherState) oin.readObject();
 

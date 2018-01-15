@@ -8,7 +8,20 @@
     <artifactId>WeatherMap</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
-    <url>https://github.com/VPanadiy</url>
+
+    <name>WeatherForecast</name>
+    <description>Getting weather forecast</description>
+    <url>https://github.com/VPanadiy/WeatherMap</url>
+    <inceptionYear>2018</inceptionYear>
+
+    <developers>
+        <developer>
+            <email>VPanadiy@gmail.com</email>
+            <name>Vitaliy Panadiy</name>
+            <url>https://github.com/VPanadiy</url>
+            <id>VPanadiy</id>
+        </developer>
+    </developers>
 
     <properties>
         <main-class>dream.development.Main</main-class>
